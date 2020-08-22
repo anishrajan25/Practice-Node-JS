@@ -4,33 +4,38 @@ const dboper = require('./operations');
 
 const url = 'mongodb://localhost:27017/';
 const dbname = 'conFusion';
+MongoClient.connect(url).then((client) => {
 
-MongoClient.connect(url, (err, client) => {
-    assert.equal(err, null);
+    console.log('Connected correctly to server');
+    const db = client.db(dbname);
 
-    console.log("Connected correctly to sever");
+    dboper.insertDocument(db, { name: "Vadonut", description: "Test"}, "dishes")
+    .then((result) => {
+        console.log("Insert Document:\n", result.ops);
 
-    const db = client.db(dbname); // to connect to the database
-    
-    dboper.insertDocument(db, { name: "Vandonut", description: "Test" }, 'dishes', (result) => {
-        console.log("\nInsert document: \n", result.ops);
+        return dboper.findDocuments(db, "dishes");
+    })
+    .then((docs) => {
+        console.log("Found Documents:\n", docs);
 
-        dboper.findDocuments(db, 'dishes', (docs) => {
-            console.log("\nFound documents: \n", docs);
+        return dboper.updateDocument(db, { name: "Vadonut" }, { description: "Updated Test" }, "dishes");
+    })
+    .then((result) => {
+        console.log("Updated Document:\n", result.result);
 
-            dboper.updateDocument(db, { name: 'Vandonut' }, { description: 'Updated Test'}, 'dishes', (result) => {
-                console.log("\nUpdated document: \n", result.result);
+        return dboper.findDocuments(db, "dishes");
+    })
+    .then((docs) => {
+        console.log("Found Updated Documents:\n", docs);
+                        
+        return db.dropCollection("dishes");
+    })
+    .then((result) => {
+        console.log("Dropped Collection: ", result);
 
-                dboper.findDocuments(db, 'dishes', (docs) => {
-                    console.log("\nFound updated documents: \n", docs);
+        return client.close();
+    })
+    .catch((err) => console.log(err));
 
-                    db.dropCollection('dishes', (result) => {
-                        console.log("\nDropped Collection: \n", result);
-
-                        client.close();
-                    })
-                });
-            });
-        });
-    });
-});
+})
+.catch((err) => console.log(err));

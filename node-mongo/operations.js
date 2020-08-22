@@ -3,35 +3,20 @@ const assert = require('assert');
 exports.insertDocument = (db, document, collection, callback) => {
     const coll = db.collection(collection);
 
-    coll.insert(document, (err, result) => {
-        assert.equal(err, null);
-
-        console.log("\nInserted " + result.result.n + 
-            " documents into the collection " + collection);
-        callback(result);
-    });
+    return coll.insert(document);
 };
 
 exports.findDocuments = (db, collection, callback) => {
     const coll = db.collection(collection);
 
-    coll.find({}).toArray((err, docs) => {
-        assert.equal(err, null);
-
-        callback(docs);
-    });
+    return coll.find({}).toArray();
 };
 
 exports.removeDocument = (db, document, collection, callback) => {
     const coll = db.collection(collection);
 
     //deletes the first match
-    coll.deleteOne(document, (err, result) => {
-        assert.equal(err, null);
-
-        console.log("\nRemoved the document ", document);
-        callback(result);
-    });
+    return coll.deleteOne(document);
 };
 
 exports.updateDocument = (db, document, update, collection, callback) => {
@@ -40,10 +25,5 @@ exports.updateDocument = (db, document, update, collection, callback) => {
     // 1st param - document to be updated
     // 2nd -> fields to be updated (here it passes the update parameter we received above)
     // 3rd -> 
-    coll.updateOne(document, { $set: update }, null, (err, result) => {
-        assert.equal(err, null);
-
-        console.log("\nUpdated the document with ", update);
-        callback(result);
-    })
+    return coll.updateOne(document, { $set: update }, null);
 };
